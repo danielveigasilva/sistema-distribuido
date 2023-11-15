@@ -12,6 +12,11 @@ public class Main {
 		
 		int port = Integer.parseInt(args[0]);
 		
+		String mode = "rf";
+		if (args.length > 1)
+			mode = (String) args[1];
+			
+		
 		//TODO: Tirar gambiarra
 		if (port == 3131) {
 			ServerMutex serverMutex = new ServerMutex(5656);
@@ -32,7 +37,7 @@ public class Main {
 	            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 	            String request = (String) ois.readObject();
 	            
-	            (new ProcessRequest(request, new FileDatabase("serverdb" + port + ".dat"), port)).start();
+	            (new ProcessRequest(request, new FileDatabase("serverdb" + port + ".dat"), port, mode)).start();
 	            
 	            ois.close();
 	            socket.close();

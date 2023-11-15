@@ -78,8 +78,6 @@ public class FileDatabase {
 				
 				System.out.println("   + Merge -  " + rowsToMerge.length + " Linhas alteradas!");
 			}
-			//else 
-			//	System.out.println(" >> DB : Base já atualizada, 0 Linhas alteradas.");
 			
 			if (idServerOrigin == idServer)
 				return rowsLag == null ? "" : rowsLag + "\n";

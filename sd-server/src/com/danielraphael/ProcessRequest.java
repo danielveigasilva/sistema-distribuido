@@ -10,16 +10,18 @@ public class ProcessRequest extends Thread {
 	private static final int portMutex = 5656;
 	
 	private int port;
+	private String mode;
 	
 	private String request;
 	private FileDatabase fileDatabase;
 	
 	private ServerMutex serverMutex;
 	
-	public ProcessRequest(String request, FileDatabase fileDatabase, int port) {
+	public ProcessRequest(String request, FileDatabase fileDatabase, int port, String mode) {
 		this.request = request;
 		this.fileDatabase = fileDatabase;
 		this.port = port;
+		this.mode = mode;
 	}
 	
 	@Override
@@ -28,15 +30,21 @@ public class ProcessRequest extends Thread {
 		try {
 			
 			String[] requestArgs = request.split(";");
-			System.out.println(" >> LoadBalance " + requestArgs[requestArgs.length - 1] + " -> Add Stack " + request.replace(requestArgs[requestArgs.length - 1], ""));
-			String pull = this.fileDatabase.pull(this.port);
-			//Fazendo o pull antes do delay temos um atrado
+			String pull = "";
+			
+			if (mode.equals("rf")) {
+				System.out.println(" >> LB " + requestArgs[requestArgs.length - 1] + " : (" + Thread.currentThread().getId() + ") " + request.replace(requestArgs[requestArgs.length - 1], ""));
+				pull = this.fileDatabase.pull(this.port);
+			}
 			
 			Random rand = new Random(System.currentTimeMillis());
 			int sleepMs = rand.nextInt(maxValueMs - minValueMs) + minValueMs;
 			Thread.sleep(sleepMs);
 			
-			//Fazendo o pull depois o delay é menor
+			if (mode.equals("pf")) {
+				System.out.println(" >> LB " + requestArgs[requestArgs.length - 1] + " : (" + Thread.currentThread().getId() + ") " + request.replace(requestArgs[requestArgs.length - 1], ""));
+				pull = this.fileDatabase.pull(this.port);
+			}
 			
 			switch (requestArgs[0]) {
 				case "w":
@@ -46,11 +54,13 @@ public class ProcessRequest extends Thread {
 					int z = mdc(x, y);
 					
 					String newRow = "O MDC entre " + x + " e " + y + " é " + z;
+					
+					System.out.println("  (" + Thread.currentThread().getId() + ") " + request.replace(requestArgs[requestArgs.length - 1], ""));
 					this.fileDatabase.commit(this.port, pull + this.fileDatabase.insertRow(newRow));
 					break;
 					
 				case "r":
-					System.out.println("   #LINHAS : " + this.fileDatabase.countRows());
+					System.out.println("  (" + Thread.currentThread().getId() + ") " + request.replace(requestArgs[requestArgs.length - 1], "") + " - " + this.fileDatabase.countRows());
 					this.fileDatabase.commit(this.port, pull);
 					break;
 			}

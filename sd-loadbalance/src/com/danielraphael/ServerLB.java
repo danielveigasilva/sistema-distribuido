@@ -51,9 +51,7 @@ public class ServerLB extends Thread{
 		            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 		            String request = (String) ois.readObject();
 		            
-		            //TODO: Criar buffer da requisição
 		            sendToDataServer(request);
-		            //TODO: Deletar buffer
 		            
 		            ois.close();
 		            socket.close();
