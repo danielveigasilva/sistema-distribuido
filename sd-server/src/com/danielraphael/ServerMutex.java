@@ -36,10 +36,11 @@ public class ServerMutex extends Thread{
 				ObjectInputStream ois = new ObjectInputStream(branchSocket.getInputStream());
 				
 				int branchServerID = (Integer) ois.readObject();
+				if (branchServerID < 0)
+					continue;
 				
 				(new ClientMutexThread(masterSocket, masterServerID, branchSocket)).start();
 				
-	            
 				masterSocket = branchSocket;
 				masterServerID = branchServerID;
 			}

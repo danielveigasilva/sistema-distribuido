@@ -84,12 +84,6 @@ public class ServerLB extends Thread{
 	            }
 			}
 			
-			/*
-			Random rand = new Random(System.currentTimeMillis());
-			int indexServerDb = rand.nextInt(9041542) % this.lstServersDatabase.size();
-			int portServerDb = this.lstServersDatabase.get(indexServerDb);
-			*/
-			
 			Socket socket = new Socket(InetAddress.getLocalHost(), portServerDb);
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 			

@@ -36,9 +36,6 @@ public class ServerVRRP extends Thread{
 			Socket socket = new Socket(InetAddress.getLocalHost(), this.portVrrp);
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 	        oos.writeObject("ok");
-	        
-	        //oos.close();
-			//socket.close();
 			
 			System.out.println(" >> Serviço VRRP: Encontrado");
 			return socket;
@@ -69,8 +66,6 @@ public class ServerVRRP extends Thread{
 					try {
 			            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			            ois.readObject();
-			            //String msg = (String) ois.readObject();
-			            //ois.close();
 					}
 					catch(Exception e) {
 						startThreadServerBackup();
@@ -105,7 +100,6 @@ public class ServerVRRP extends Thread{
 					try {
 						ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 						oos.writeObject("ok");
-				        //oos.close();
 					}
 					catch(Exception e) {
 						startThreadServerBackup();

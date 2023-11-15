@@ -7,15 +7,11 @@ public class ProcessRequest extends Thread {
 	private static final int minValueMs = 50;
 	private static final int maxValueMs = 200;
 	
-	private static final int portMutex = 5656;
-	
 	private int port;
 	private String mode;
 	
 	private String request;
 	private FileDatabase fileDatabase;
-	
-	private ServerMutex serverMutex;
 	
 	public ProcessRequest(String request, FileDatabase fileDatabase, int port, String mode) {
 		this.request = request;
@@ -32,7 +28,7 @@ public class ProcessRequest extends Thread {
 			String[] requestArgs = request.split(";");
 			String pull = "";
 			
-			if (mode.equals("rf")) {
+			if (mode.equals("-rf")) {
 				System.out.println(" >> LB " + requestArgs[requestArgs.length - 1] + " : (" + Thread.currentThread().getId() + ") " + request.replace(requestArgs[requestArgs.length - 1], ""));
 				pull = this.fileDatabase.pull(this.port);
 			}
@@ -41,7 +37,7 @@ public class ProcessRequest extends Thread {
 			int sleepMs = rand.nextInt(maxValueMs - minValueMs) + minValueMs;
 			Thread.sleep(sleepMs);
 			
-			if (mode.equals("pf")) {
+			if (mode.equals("-pf")) {
 				System.out.println(" >> LB " + requestArgs[requestArgs.length - 1] + " : (" + Thread.currentThread().getId() + ") " + request.replace(requestArgs[requestArgs.length - 1], ""));
 				pull = this.fileDatabase.pull(this.port);
 			}

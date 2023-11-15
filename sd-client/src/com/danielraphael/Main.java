@@ -47,7 +47,6 @@ public class Main {
 			}
 			
 			int sleepMs = rand.nextInt(maxValueMs - minValueMs) + minValueMs;
-			//int sleepMs = 5;
 			Thread.sleep(sleepMs);
 		}
 	}
