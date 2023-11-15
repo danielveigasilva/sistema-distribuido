@@ -2,9 +2,12 @@ package com.danielraphael;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -28,6 +31,7 @@ public class Main {
 		server.bind(new InetSocketAddress(port));
 		
 		System.out.println(" >> Ligando ServerDB " + port);
+		List<ProcessRequest> lstProcessRequest = new ArrayList<ProcessRequest>();
 		
 		while(true)
 		{
@@ -37,7 +41,17 @@ public class Main {
 	            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 	            String request = (String) ois.readObject();
 	            
-	            (new ProcessRequest(request, new FileDatabase("serverdb" + port + ".dat"), port, mode)).start();
+	            if (request.equals("processUse")) {
+	            	long nProcessActive = lstProcessRequest.stream().filter(process -> process.getState() != Thread.State.TERMINATED).count();
+	            	System.out.println(" >> ServerDB : nProcessActive - " + nProcessActive);
+	            	ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+	            	oos.writeObject(nProcessActive);
+	            	continue;
+	            }
+	            
+	            //(new ProcessRequest(request, new FileDatabase("serverdb" + port + ".dat"), port, mode)).start();
+	            lstProcessRequest.add(new ProcessRequest(request, new FileDatabase("serverdb" + port + ".dat"), port, mode));
+	            lstProcessRequest.get(lstProcessRequest.size() - 1).start();
 	            
 	            ois.close();
 	            socket.close();

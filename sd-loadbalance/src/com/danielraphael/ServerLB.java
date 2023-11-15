@@ -65,13 +65,31 @@ public class ServerLB extends Thread{
     }
 	
 	private void sendToDataServer(String request) {
-		
-		//TODO: Adicionar novos critérios a distribuição
-		Random rand = new Random(System.currentTimeMillis());
-		int indexServerDb = rand.nextInt(9041542) % this.lstServersDatabase.size();
-		int portServerDb = this.lstServersDatabase.get(indexServerDb);
-		
+
 		try {
+			
+			long nProcessActiveMin = Long.MAX_VALUE;
+			int portServerDb = 0;
+			
+			for (int port : lstServersDatabase) {
+				Socket socket = new Socket(InetAddress.getLocalHost(), port);
+				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+				oos.writeObject("processUse");
+				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+	            long nProcessActive = (Long) ois.readObject();
+	            
+	            if (nProcessActive < nProcessActiveMin) {
+	            	nProcessActiveMin = nProcessActive;
+	            	portServerDb = port;
+	            }
+			}
+			
+			/*
+			Random rand = new Random(System.currentTimeMillis());
+			int indexServerDb = rand.nextInt(9041542) % this.lstServersDatabase.size();
+			int portServerDb = this.lstServersDatabase.get(indexServerDb);
+			*/
+			
 			Socket socket = new Socket(InetAddress.getLocalHost(), portServerDb);
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 			
@@ -82,7 +100,7 @@ public class ServerLB extends Thread{
 			System.out.println(" >> LoadBalance " + this.port + " -> ServerDB " + portServerDb + " : " + request);
 		}
 		catch(Exception e) {
-			System.out.println(" >> LoadBalance " + this.port + " -> ServerDB " + portServerDb + " : ERRO - " + e.getMessage());
+			System.out.println(" >> LoadBalance " + this.port + " -> ServerDB null : ERRO - " + e.getMessage());
 		}
 	}
 }
