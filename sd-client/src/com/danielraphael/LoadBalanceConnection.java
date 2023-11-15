@@ -34,7 +34,7 @@ public class LoadBalanceConnection {
 	        oos.close();
 	        socket.close();
 	        
-	        System.out.println(" >> Cliente -> " + this.port + " : " + text);
+	        System.out.println(" >> Cliente -> LoadBalance " + this.port + " : " + text);
 	        return true;
 		}
 		catch(Exception e) 

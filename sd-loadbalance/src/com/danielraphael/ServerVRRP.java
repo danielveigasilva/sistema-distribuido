@@ -6,16 +6,19 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 public class ServerVRRP extends Thread{
 
 	private int portVrrp;
 	private int portVipBackup;
 	private ServerLB serverBackup = null;
+	private List<Integer> lstServersDatabase;
 	
-	public ServerVRRP(int portVrrp, int portVipBackup) {
+	public ServerVRRP(int portVrrp, int portVipBackup, List<Integer> lstServersDatabase) {
 		this.portVipBackup = portVipBackup;
 		this.portVrrp = portVrrp;
+		this.lstServersDatabase = lstServersDatabase;
 	}
 	
 	@Override
@@ -129,7 +132,7 @@ public class ServerVRRP extends Thread{
 	
 	private void startThreadServerBackup() {
 		if (this.serverBackup == null) {
-			this.serverBackup = new ServerLB(this.portVipBackup);
+			this.serverBackup = new ServerLB(this.portVipBackup, this.lstServersDatabase);
 			this.serverBackup.start();
 		}
 	}

@@ -1,18 +1,24 @@
 package com.danielraphael;
 
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
+import java.util.Random;
 
 public class ServerLB extends Thread{
 
 	private int port;
 	private ServerSocket server = null;
 	private boolean active = true;
+	private List<Integer> lstServersDatabase;
 	
-	public ServerLB(int port) {
+	public ServerLB(int port, List<Integer> lstServersDatabase) {
 		this.port = port;
+		this.lstServersDatabase = lstServersDatabase;
 	}
 	
 	public void endServer() {
@@ -43,10 +49,11 @@ public class ServerLB extends Thread{
 		            Socket socket = server.accept();
 		            
 		            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-		            String msg = (String) ois.readObject();
-		            System.out.println(" >> LoadBalance " + this.port + ": " + msg);
-		            //sendToDataServer(msg)
-		            //TODO: Redistribuir para o servidor escolhido, criar critério
+		            String request = (String) ois.readObject();
+		            
+		            //TODO: Criar buffer da requisição
+		            sendToDataServer(request);
+		            //TODO: Deletar buffer
 		            
 		            ois.close();
 		            socket.close();
@@ -58,4 +65,26 @@ public class ServerLB extends Thread{
 			}
 		}
     }
+	
+	private void sendToDataServer(String request) {
+		
+		//TODO: Adicionar novos critérios a distribuição
+		Random rand = new Random(System.currentTimeMillis());
+		int indexServerDb = rand.nextInt(9041542) % this.lstServersDatabase.size();
+		int portServerDb = this.lstServersDatabase.get(indexServerDb);
+		
+		try {
+			Socket socket = new Socket(InetAddress.getLocalHost(), portServerDb);
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			
+			oos.writeObject(request + ";" + this.port);
+			oos.close();
+			socket.close();
+			
+			System.out.println(" >> LoadBalance " + this.port + " -> ServerDB " + portServerDb + " : " + request);
+		}
+		catch(Exception e) {
+			System.out.println(" >> LoadBalance " + this.port + " -> ServerDB " + portServerDb + " : ERRO - " + e.getMessage());
+		}
+	}
 }

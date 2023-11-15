@@ -47,7 +47,7 @@ public class Main {
 			}
 			
 			int sleepMs = rand.nextInt(maxValueMs - minValueMs) + minValueMs;
-			System.out.println(" >> Cliente : Dormindo por " + sleepMs + "ms...");
+			//int sleepMs = 5;
 			Thread.sleep(sleepMs);
 		}
 	}
